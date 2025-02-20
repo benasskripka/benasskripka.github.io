@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .back-button, .clear-button {
+            color: #0066FF;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .clear-button {
+            font-weight: 400;
+        }
+
+        .sort-dropdown {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #818494;
+            border-radius: 14px;
+            font-size: 17px;
+            margin-bottom: 24px;
+            appearance: none;
+            background: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%3Cpath%20d%3D%22M7%2010L3.5%206h7L7%2010z%22%2F%3E%3C%2Fsvg%3E") right 16px center no-repeat;
+        }
+
+        .search-card {
+            background: #FBECE9;
+            border-radius: 16px;
+            padding: 24px 24px;
+            margin-bottom: 24px;
+        }
+
+        .search-card h2 {
+            font-family: 'Newsreader', serif;
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            color: #191E3B;
+            font-weight: 400;
+        }
+
+        .search-card p {
+            color: #191E3B;
+            font-size: 16px;
+            margin: 0 0 16px 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #818494;
+            border-radius: 14px;
+            font-size: 17px;
+            box-sizing: border-box;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h3 {
+            font-size: 16px;
+            margin: 0 0 16px 0;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 1px solid #818494;
+            border-radius: 100px;
+            font-size: 14px;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: pointer;
+            background: white;
+        }
+
+        .chip.selected {
+            background: #f5f5f5;
+            border: 2px solid #1a1a1a;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: -4px; /* Compensate for chip margins */
+        }
+
+        .price-range {
+            margin: 24px 0;
+        }
+
+        .price-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .done-button {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background: #191E3B;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 32px;
+            font-size: 17px;
+            cursor: pointer;
+            width: calc(100% - 32px);
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #191E3B;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button .material-icons {
+            font-size: 24px;
+        }
+
+        .filter-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-section h3 {
+            color: #191E3B;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .amenity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .amenity-item:last-child {
+            border-bottom: none;
+        }
+
+        .amenity-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .custom-checkbox .material-icons {
+            display: none;
+            font-size: 18px;
+            color: white;
+        }
+
+        .custom-checkbox.checked {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+
+        .custom-checkbox.checked .material-icons {
+            display: block;
+        }
+
+        /* Add styles for active filters and suggestions */
+        #selected-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 1px solid #818494;
+            border-radius: 100px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .pill.selected {
+            border: 2px solid #191E3B;
+            padding: 7px 15px;
+            background-color: #f5f5f5;
+        }
+
+        .pill .material-icons {
+            font-size: 18px;
+        }
+
+        /* Update styles for suggestions */
+        #suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border: 1px solid #818494;
+            border-radius: 100px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .pill.selected {
+            border: 2px solid #191E3B;
+            padding: 7px 15px;
+        }
+
+        .pill .material-icons {
+            font-size: 18px;
+        }
+
+        .pill-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #selected-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="navigateToListings()">
+                <span class="material-icons">close</span>
+            </button>
+            <h1>Sort & Filter</h1>
+            <button class="clear-button" onclick="clearAllFilters()">Clear</button>
+        </div>
+
+        <select class="sort-dropdown">
+            <option>Recommended</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+            <option>Rating</option>
+        </select>
+
+        <div class="search-card">
+            <h2>Find your match <span class="material-icons">auto_awesome</span></h2>
+            <p>Let us know what you're looking for and we'll help you find it.</p>
+            <input type="text" class="search-input" placeholder="I want a hotel with breakfast..." onclick="window.location.href='Pills.html'">
+        </div>
+
+        <div class="filter-section" id="filter-section">
+            <h3 id="filter-title">Popular</h3>
+            <div class="chip-group" id="chip-group">
+                <button class="chip">Paris City Center</button>
+                <button class="chip">Hotel</button>
+                <button class="chip">Breakfast included</button>
+                <button class="chip">Airport shuttle included</button>
+                <button class="chip">Reserve now, pay later</button>
+            </div>
+        </div>
+
+        <div class="filter-section" id="active-filters" style="display: none;">
+            <h3>Selected:</h3>
+            <div class="pill-container">
+                <div id="selected-filters"></div>
+                <div id="suggestion-list"></div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Price per night</h3>
+            <div class="price-labels">
+                <span>$0</span>
+                <span>$500</span>
+            </div>
+            <input type="range" min="0" max="500" value="500">
+        </div>
+
+        <div class="filter-section">
+            <h3>Guest rating</h3>
+            <div class="chip-group">
+                <button class="chip">3.0+</button>
+                <button class="chip">3.5+</button>
+                <button class="chip">4.0+</button>
+                <button class="chip">4.5+</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Star rating</h3>
+            <div class="chip-group">
+                <button class="chip">3★</button>
+                <button class="chip">4★</button>
+                <button class="chip">5★</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Amenities</h3>
+            <div class="amenity-list">
+                <div class="amenity-item">
+                    <div class="amenity-name">
+                        <span class="material-icons">pool</span>
+                        Pool
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox">
+                            <span class="material-icons">check</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-name">
+                        <span class="material-icons">wifi</span>
+                        Free WiFi
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox">
+                            <span class="material-icons">check</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-name">
+                        <span class="material-icons">fitness_center</span>
+                        Fitness center
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox">
+                            <span class="material-icons">check</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-name">
+                        <span class="material-icons">spa</span>
+                        Spa
+                    </div>
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox">
+                            <span class="material-icons">check</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="done-button">Done</button>
+    </div>
+
+    <script>
+        function navigateToListings() {
+            window.location.href = 'Listings.html';
+        }
+
+        document.querySelector('.search-input').addEventListener('click', () => {
+            window.location.href = 'Pills.html';
+        });
+
+        // Unified click handler for all chips
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('selected');
+            });
+        });
+
+        // Add click handlers for checkboxes
+        document.querySelectorAll('.custom-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                checkbox.classList.toggle('checked');
+            });
+        });
+
+        // Keep track of current navigation path in localStorage
+        if (!localStorage.getItem('navigationPath')) {
+            localStorage.setItem('navigationPath', 'Pills.html');
+        }
+
+        function clearAllFilters() {
+            // Clear all other localStorage items except navigationPath
+            const currentPath = localStorage.getItem('navigationPath');
+            localStorage.clear();
+            
+            // Toggle the navigation path
+            const newPath = currentPath === 'Pills.html' ? 'Submit.html' : 'Pills.html';
+            localStorage.setItem('navigationPath', newPath);
+            
+            // Update the search card navigation
+            const searchInput = document.querySelector('.search-card');
+            searchInput.onclick = () => window.location.href = newPath;
+        }
+
+        // Initialize search input navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.querySelector('.search-card');
+            const currentPath = localStorage.getItem('navigationPath') || 'Pills.html';
+            searchInput.onclick = () => window.location.href = currentPath;
+        });
+
+        // Add click handler to clear button
+        document.querySelector('.clear-button').onclick = clearAllFilters;
+
+        const suggestions = ["Hotel", "Hilton", "Near attractions", "Amazing views", "Breakfast included", "Luxury", "Rooftop bar"];
+
+        function updateFilterDisplay() {
+            const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+            const filterSection = document.getElementById('filter-section');
+            const activeFiltersDiv = document.getElementById('active-filters');
+            const selectedFiltersDiv = document.getElementById('selected-filters');
+
+            if (selectedFilters.length > 0) {
+                // Hide popular filters and show selected filters and suggestions
+                filterSection.style.display = 'none';
+                activeFiltersDiv.style.display = 'block';
+                
+                // Clear and rebuild selected filters
+                selectedFiltersDiv.innerHTML = '';
+                selectedFilters.forEach(filter => {
+                    selectedFiltersDiv.appendChild(createPill(filter, true));
+                });
+                
+                showSuggestions();
+            } else {
+                // Show popular filters
+                filterSection.style.display = 'block';
+                activeFiltersDiv.style.display = 'none';
+            }
+        }
+
+        function createPill(text, isSelected) {
+            const pill = document.createElement("div");
+            pill.className = isSelected ? "pill selected" : "pill";
+            pill.innerHTML = isSelected ? 
+                `${text}<span class="material-icons">close</span>` :
+                `<span class="material-icons">add</span>${text}`;
+            
+            pill.onclick = () => {
+                if (isSelected) {
+                    const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+                    const updatedFilters = selectedFilters.filter(f => f !== text);
+                    localStorage.setItem('selectedFilters', JSON.stringify(updatedFilters));
+                    updateFilterDisplay();
+                }
+            };
+            return pill;
+        }
+
+        function showSuggestions() {
+            const suggestionList = document.getElementById('suggestion-list');
+            suggestionList.innerHTML = '';
+            const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+
+            suggestions
+                .filter(suggestion => !selectedFilters.includes(suggestion))
+                .slice(0, 2)  // Limit to 2 suggestions
+                .forEach(suggestion => {
+                    const pill = document.createElement('div');
+                    pill.className = 'pill';
+                    pill.innerHTML = `<span class="material-icons">add</span>${suggestion}`;
+                    pill.onclick = () => {
+                        const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+                        if (!selectedFilters.includes(suggestion)) {
+                            selectedFilters.push(suggestion);
+                            localStorage.setItem('selectedFilters', JSON.stringify(selectedFilters));
+                            updateFilterDisplay();
+                        }
+                    };
+                    suggestionList.appendChild(pill);
+                });
+        }
+
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFilterDisplay();
+        });
+    </script>
+</body>
+</html> 

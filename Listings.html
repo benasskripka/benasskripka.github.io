@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #191E3B;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #E5E5E5;
+        }
+
+        .search-info h2 {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .search-info p {
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0 0 0;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding: 4px 0;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            border: 1px solid #818494;
+            border-radius: 100px;
+            background: white;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-button.selected {
+            border: 2px solid #191E3B;
+            padding: 7px 15px;
+        }
+
+        .filter-button .material-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .properties-count {
+            font-size: 14px;
+            color: #191E3B;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .onekey-banner {
+          font-weight: 500;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #E5E5E5;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .onekey-banner img {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+        }
+
+        .hotel-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid #E5E5E5;
+            display: flex;
+            min-height: 160px;
+        }
+
+        .hotel-images {
+            position: relative;
+            width: 140px;
+            flex-shrink: 0;
+            aspect-ratio: 1;
+        }
+
+        .hotel-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hotel-info {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .hotel-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .hotel-location {
+            color: #666;
+            font-size: 14px;
+            margin: 4px 0;
+        }
+
+        .amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            color: #191E3B;
+            font-size: 14px;
+        }
+
+        .price-info {
+            text-align: right;
+            margin-top: auto;
+        }
+
+        .discount {
+            color: white;
+            background: #E61E43;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .original-price {
+            color: #666;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .current-price {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .price-details {
+            color: #191E3B;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .favorite-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: #191E3B;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .rating {
+            display: inline-block;
+            background: #006F45;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 4px;
+        }
+
+        .reviews {
+            color: #191E3B;
+            font-size: 14px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f0f8f4;
+            color: #006F45;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .material-icons {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+
+        .amenities .material-icons {
+            font-size: 18px;
+            margin-right: 4px;
+        }
+
+        .tune-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-count {
+            background: #1a1a1a;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-left: 2px;
+            position: static;
+        }
+
+        /* Add toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+            margin-left: auto;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .2s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #006F45;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(16px);
+        }
+
+        .tune-button .chevron {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <div class="header-title">Paris, France</div>
+            <div class="header-actions">
+                <button class="action-button">
+                    <span class="material-icons">favorite_border</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="search-card" onclick="window.location.href='Filter.html'">
+            <div class="search-info">
+                <h2>Paris, France</h2>
+                <p>2 travelers, 1 room</p>
+            </div>
+            <button style="background: none; border: none;">
+                <span class="material-icons">edit</span>
+            </button>
+        </div>
+
+        <div class="filter-row">
+            <button class="filter-button tune-button" onclick="window.location.href='Filter.html'">
+                <span class="material-icons">tune</span>
+                <div class="filter-count" style="display: none">0</div>
+                <span class="material-icons chevron" style="font-size: 16px;">keyboard_arrow_down</span>
+            </button>
+            <button class="filter-button">
+                Popular
+                <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
+            </button>
+            <button class="filter-button">
+                Price
+                <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
+            </button>
+            <button class="filter-button">
+                Guest rating
+                <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
+            </button>
+            <button class="filter-button">
+                Amenities
+                <span class="material-icons" style="font-size: 16px;">keyboard_arrow_down</span>
+            </button>
+        </div>
+
+        <div class="properties-count">387 properties</div>
+
+        <div class="onekey-banner">
+            <img src="onekey-icon.png" alt="OneKey">
+            <span>$52.34 in OneKeyCash</span>
+            <label class="toggle-switch">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div id="hotels-container"></div>
+    </div>
+
+    <script>
+        document.querySelector('.back-button').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        // Define mapping for amenity icons
+        const amenityIcons = {
+            "Pool": "pool",
+            "Spa": "spa",
+            "Breakfast": "restaurant",
+            "Restaurant": "restaurant",
+            "Rooftop bar": "local_bar",
+            "Garden": "park",
+            "Fitness center": "fitness_center"
+        };
+
+        const hotelData = {
+          "hotels": [
+            {
+              "id": "keppler",
+              "name": "Hôtel Keppler",
+              "location": "Paris",
+              "images": ["images/keppler-1.jpg"],
+              "amenities": [{"name": "Pool"}],
+              "rating": {
+                "score": "9.6",
+                "label": "Exceptional",
+                "reviews": 711
+              },
+              "pricing": {
+                "original": 632,
+                "current": 566,
+                "perNight": 283,
+                "discount": 67,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable"]
+            },
+            {
+              "id": "mansart",
+              "name": "Hôtel Mansart",
+              "location": "Paris",
+              "images": ["images/mansart-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Spa"
+                }
+              ],
+              "rating": {
+                "score": "9.0",
+                "label": "Wonderful",
+                "reviews": 478
+              },
+              "pricing": {
+                "original": 800,
+                "current": 656,
+                "perNight": 328,
+                "discount": 144,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable", "Pay later"]
+            },
+            {
+              "id": "ritz",
+              "name": "Ritz Paris",
+              "location": "1st arr., Paris",
+              "images": ["images/ritz-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Pool"
+                },
+                {
+                  "name": "Spa"
+                },
+                {
+                  "name": "Breakfast"
+                }
+              ],
+              "rating": {
+                "score": "9.8",
+                "label": "Exceptional",
+                "reviews": 892
+              },
+              "pricing": {
+                "original": 1890,
+                "current": 1702,
+                "perNight": 851,
+                "discount": 188,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable", "Breakfast included"]
+            },
+            {
+              "id": "hoxton",
+              "name": "The Hoxton, Paris",
+              "location": "2nd arr., Paris",
+              "images": ["images/hoxton-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Restaurant"
+                },
+                {
+                  "name": "Breakfast"
+                }
+              ],
+              "rating": {
+                "score": "9.2",
+                "label": "Wonderful",
+                "reviews": 523
+              },
+              "pricing": {
+                "original": 545,
+                "current": 462,
+                "perNight": 231,
+                "discount": 83,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Pay later", "Breakfast available"]
+            },
+            {
+              "id": "peninsula",
+              "name": "The Peninsula Paris",
+              "location": "16th arr., Paris",
+              "images": ["images/peninsula-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Pool"
+                },
+                {
+                  "name": "Spa"
+                },
+                {
+                  "name": "Rooftop bar"
+                }
+              ],
+              "rating": {
+                "score": "9.7",
+                "label": "Exceptional",
+                "reviews": 645
+              },
+              "pricing": {
+                "original": 1650,
+                "current": 1485,
+                "perNight": 742,
+                "discount": 165,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable", "Luxury"]
+            },
+            {
+              "id": "saint-james",
+              "name": "Saint James Paris",
+              "location": "16th arr., Paris",
+              "images": ["images/saint-james-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Garden"
+                },
+                {
+                  "name": "Spa"
+                },
+                {
+                  "name": "Breakfast"
+                }
+              ],
+              "rating": {
+                "score": "9.4",
+                "label": "Exceptional",
+                "reviews": 387
+              },
+              "pricing": {
+                "original": 1280,
+                "current": 1088,
+                "perNight": 544,
+                "discount": 192,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable", "Breakfast included"]
+            },
+            {
+              "id": "grand-powers",
+              "name": "Hôtel Grand Powers",
+              "location": "8th arr., Paris",
+              "images": ["images/powers-1.jpg"],
+              "amenities": [
+                {
+                  "name": "Spa"
+                },
+                {
+                  "name": "Fitness center"
+                },
+                {
+                  "name": "Breakfast"
+                }
+              ],
+              "rating": {
+                "score": "9.3",
+                "label": "Wonderful",
+                "reviews": 412
+              },
+              "pricing": {
+                "original": 920,
+                "current": 828,
+                "perNight": 414,
+                "discount": 92,
+                "nights": 2,
+                "rooms": 1
+              },
+              "tags": ["Fully refundable", "Breakfast available"]
+            }
+          ],
+          "searchInfo": {
+            "location": "Paris, France",
+            "dates": {
+              "checkIn": "Apr 25",
+              "checkOut": "Apr 27"
+            },
+            "guests": {
+              "travelers": 1,
+              "rooms": 1
+            },
+            "totalProperties": 387
+          }
+        };
+
+        // Get the stored result count
+        const resultCount = localStorage.getItem('resultCount') || '387';
+        document.querySelector('.properties-count').textContent = `${resultCount} properties`;
+
+        function loadHotels() {
+            const hotelsContainer = document.getElementById('hotels-container');
+            
+            // Get the number of hotels to show based on resultCount
+            const numHotelsToShow = Math.min(parseInt(resultCount), hotelData.hotels.length);
+            
+            // Show only the first n hotels based on resultCount
+            const hotelsToShow = hotelData.hotels.slice(0, numHotelsToShow);
+            
+            hotelsContainer.innerHTML = hotelsToShow.map(hotel => `
+                <div class="hotel-card">
+                    <div class="hotel-images">
+                        <img src="${hotel.images[0]}" alt="${hotel.name}">
+                        <button class="favorite-button">
+                            <span class="material-icons">favorite_border</span>
+                        </button>
+                    </div>
+                    <div class="hotel-info">
+                        <div>
+                            <h3 class="hotel-name">${hotel.name}</h3>
+                            <div class="hotel-location">${hotel.location}</div>
+                            <div class="amenities">
+                                ${hotel.amenities.map(amenity => `
+                                    <span>
+                                        <span class="material-icons">${amenityIcons[amenity.name]}</span>
+                                        ${amenity.name}
+                                    </span>
+                                `).join('')}
+                            </div>
+                            <div class="tags">
+                                ${hotel.tags.map(tag => 
+                                    `<span class="tag">${tag}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="rating-container">
+                                <span class="rating">${hotel.rating.score}</span>
+                                <span class="reviews">${hotel.rating.label} • ${hotel.rating.reviews} reviews</span>
+                            </div>
+                            <div class="price-info">
+                                ${hotel.pricing.discount ? `
+                                    <div class="discount">Save £${hotel.pricing.discount}</div>
+                                ` : ''}
+                                <div class="original-price">£${hotel.pricing.original}</div>
+                                <div class="current-price">£${hotel.pricing.current}</div>
+                                <div class="price-details">
+                                    for ${hotel.pricing.nights} nights, ${hotel.pricing.rooms} room<br>
+                                    £${hotel.pricing.perNight} per night<br>
+                                    includes taxes & fees
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = loadHotels;
+
+        function updateFilterCount() {
+            const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+            const filterCount = document.querySelector('.filter-count');
+            const tuneButton = document.querySelector('.tune-button');
+            const chevron = tuneButton.querySelector('.chevron');
+            
+            if (selectedFilters.length > 0) {
+                filterCount.style.display = 'flex';
+                chevron.style.display = 'none';
+                filterCount.textContent = selectedFilters.length;
+                tuneButton.classList.add('selected');
+            } else {
+                filterCount.style.display = 'none';
+                chevron.style.display = 'flex';
+                tuneButton.classList.remove('selected');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFilterCount();
+        });
+    </script>
+</body>
+</html> 

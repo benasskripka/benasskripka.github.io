@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #191E3B;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button .material-icons {
+            font-size: 24px;
+        }
+
+        #search {
+            width: 100%;
+            font-size: 28px;
+            font-family: 'Newsreader', serif;
+            color: #191E3B;
+            border: none;
+            border-radius: 4px;
+            margin-top: 8px;
+            outline: none;
+        }
+
+        .section {
+            margin: 24px 0;
+        }
+        
+        .section h3 {
+            margin-bottom: 12px;
+            color: #191E3B;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            margin: 4px;
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #818494;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .pill.selected {
+            background: #f5f5f5;
+            border: 2px solid #191E3B;
+        }
+
+        .pill .material-icons {
+            font-size: 18px;
+        }
+
+        .pill.selected .material-icons {
+            margin-left: 8px;
+        }
+
+        .pill:not(.selected) .material-icons {
+            margin-right: 8px;
+        }
+
+        .results-button {
+            width: calc(100% - 32px);
+            padding: 16px;
+            background: #191E3B;
+            color: white;
+            border: none;
+            border-radius: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+        }
+
+        .no-results-banner {
+            background: #FFF3F3;
+            border: 1px solid #FFE1E1;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            color: #1A1A1A;
+            font-size: 14px;
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            margin: 0 16px 16px 16px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="window.location.href='Filter.html'">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        
+        <input type="text" id="search" placeholder="I want...">
+
+        <div class="section" id="selected-section">
+            <h3>Selected</h3>
+            <div id="selected"></div>
+        </div>
+
+        <div class="section" id="matches-section">
+            <h3>Matches</h3>
+            <div id="matches"></div>
+        </div>
+
+        <div class="section" id="suggestions-section">
+            <h3>Suggested</h3>
+            <div id="suggestions"></div>
+        </div>
+
+        <button class="results-button">Show 14 results</button>
+    </div>
+
+    <script>
+        const suggestions = ["Hotel", "Hilton", "Near attractions", "Amazing views", "Breakfast included", "Luxury", "Rooftop bar"];
+        const options = ["Luxury", "Pool", "5 stars", "Indoor pool", "Spa"];
+        const selected = new Set();
+        const searchInput = document.getElementById("search");
+        const suggestionsDiv = document.getElementById("suggestions");
+        const matchesDiv = document.getElementById("matches");
+        const selectedDiv = document.getElementById("selected");
+        const resultsButton = document.querySelector(".results-button");
+        
+        // Get section containers
+        const suggestionsSection = document.getElementById("suggestions-section");
+        const matchesSection = document.getElementById("matches-section");
+        const selectedSection = document.getElementById("selected-section");
+
+        // Hide matches section by default
+        matchesSection.style.display = "none";
+
+        // Keyword mappings for concept matching
+        const keywordMapping = {
+            // Accommodation Types
+            luxury: ["5 stars", "Luxury resort", "Premium suite", "Designer hotel", "Boutique hotel", "Executive floor"],
+            resort: ["Beach resort", "Mountain resort", "Golf resort", "Ski resort", "All-inclusive resort", "Spa resort"],
+            boutique: ["Boutique hotel", "Design hotel", "Art hotel", "Heritage property", "Unique stays"],
+            apartment: ["Serviced apartment", "Villa", "Vacation rental", "Extended stay", "Private residence"],
+            budget: ["Budget hotel", "Hostel", "Guesthouse", "Affordable stays", "Economy hotel"],
+
+            // Amenities & Facilities
+            pool: ["Indoor pool", "Outdoor pool", "Infinity pool", "Rooftop pool", "Swimming pool", "Kids pool", "Heated pool"],
+            spa: ["Spa center", "Massage", "Wellness center", "Treatment rooms", "Hot tub", "Sauna", "Steam room"],
+            fitness: ["Gym", "Fitness center", "Yoga studio", "Personal training", "Sports facilities"],
+            dining: ["Restaurant", "Fine dining", "Buffet", "Room service", "Café", "Bar", "Lounge"],
+            business: ["Business center", "Meeting rooms", "Conference facilities", "Co-working space", "Executive lounge"],
+
+            // Features & Services
+            breakfast: ["Breakfast included", "Continental breakfast", "Buffet breakfast", "À la carte breakfast", "Room service breakfast"],
+            parking: ["Free parking", "Valet parking", "Secure parking", "Electric car charging", "Garage"],
+            internet: ["Free WiFi", "High-speed internet", "Business center", "Tech hub"],
+            service: ["24-hour service", "Concierge", "Butler service", "Room service", "Housekeeping"],
+            transport: ["Airport shuttle", "Car rental", "Taxi service", "Public transport nearby", "Bike rental"],
+
+            // Special Interest
+            family: ["Family rooms", "Kids club", "Children's activities", "Babysitting", "Family-friendly", "Kids pool"],
+            pet: ["Pet-friendly", "Dog allowed", "Cat allowed", "Pet facilities", "Pet sitting"],
+            romantic: ["Honeymoon suite", "Couples massage", "Romance package", "Private dining", "Ocean view"],
+            accessible: ["Wheelchair accessible", "Accessible bathroom", "Roll-in shower", "Elevator", "Accessible parking"],
+            eco: ["Eco-friendly", "Sustainable", "Green hotel", "Environmental", "Organic"],
+
+            // Location & Views
+            beach: ["Beachfront", "Ocean view", "Private beach", "Beach access", "Seaside", "Coastal"],
+            city: ["City center", "Downtown", "Urban", "Shopping district", "Entertainment district"],
+            nature: ["Mountain view", "Lake view", "Garden view", "Park nearby", "Nature reserve"],
+            quiet: ["Quiet area", "Peaceful location", "Secluded", "Private", "Tranquil"],
+            landmark: ["Near attractions", "Historic district", "Cultural zone", "Tourist spots", "Famous sights"],
+
+            // Activities & Entertainment
+            nightlife: ["Bar", "Nightclub", "Entertainment", "Live music", "Lounge", "Casino"],
+            shopping: ["Shopping nearby", "Mall access", "Boutique shopping", "Retail therapy", "Markets"],
+            sports: ["Golf course", "Tennis court", "Water sports", "Ski storage", "Sports facilities"],
+            culture: ["Cultural tours", "Art gallery", "Museum nearby", "Historic site", "Theater"],
+            adventure: ["Adventure sports", "Hiking trails", "Bike trails", "Water activities", "Outdoor pursuits"],
+
+            // Special Offers
+            deals: ["Special offer", "Package deal", "Last minute", "Early bird", "Seasonal promotion"],
+            inclusive: ["All-inclusive", "Full board", "Half board", "Meal plan", "Drinks package"],
+            flexible: ["Free cancellation", "Flexible booking", "Pay at hotel", "No prepayment", "Reserve now, pay later"],
+            rewards: ["Loyalty program", "Rewards points", "Member benefits", "VIP access", "Priority service"]
+        };
+
+        // Multiple keywords mapping to concepts
+        const additionalMappings = {
+            // Luxury Concepts
+            'fancy': ["luxury", "spa", "boutique"],
+            'posh': ["luxury", "spa", "boutique"],
+            'upscale': ["luxury", "spa", "boutique"],
+            'premium': ["luxury", "spa", "boutique"],
+            'high-end': ["luxury", "spa", "boutique"],
+            'exclusive': ["luxury", "spa", "boutique"],
+            
+            // Resort & Vacation
+            'vacation': ["pool", "spa", "beach", "inclusive"],
+            'holiday': ["pool", "spa", "beach", "inclusive"],
+            'getaway': ["pool", "spa", "beach", "inclusive"],
+            'retreat': ["pool", "spa", "beach", "inclusive"],
+            
+            // Family & Kids
+            'kids': ["family", "pool", "safe", "activities"],
+            'children': ["family", "pool", "safe", "activities"],
+            'baby': ["family", "pool", "safe", "activities"],
+            'toddler': ["family", "pool", "safe", "activities"],
+            
+            // Relaxation
+            'relax': ["spa", "nature", "wellness", "serene"],
+            'peaceful': ["spa", "nature", "wellness", "serene"],
+            'calm': ["spa", "nature", "wellness", "serene"],
+            'quiet': ["spa", "nature", "wellness", "serene"],
+            'tranquil': ["spa", "nature", "wellness", "serene"],
+            
+            // Beach & Water
+            'beach': ["beach", "sports", "views", "resort"],
+            'sea': ["beach", "sports", "views", "resort"],
+            'ocean': ["beach", "sports", "views", "resort"],
+            'coastal': ["beach", "sports", "views", "resort"],
+            'waterfront': ["beach", "sports", "views", "resort"],
+            
+            // Urban & City
+            'downtown': ["shopping", "nightlife", "transport", "dining"],
+            'central': ["shopping", "nightlife", "transport", "dining"],
+            'city': ["shopping", "nightlife", "transport", "dining"],
+            'urban': ["shopping", "nightlife", "transport", "dining"],
+            'metro': ["shopping", "nightlife", "transport", "dining"],
+            
+            // Business & Work
+            'work': ["business", "internet", "service"],
+            'business': ["business", "internet", "service"],
+            'corporate': ["business", "internet", "service"],
+            'professional': ["business", "internet", "service"],
+            'meeting': ["business", "internet", "service"],
+            
+            // Food & Dining
+            'food': ["dining", "culinary", "service"],
+            'meal': ["dining", "culinary", "service"],
+            'dining': ["dining", "culinary", "service"],
+            'restaurant': ["dining", "culinary", "service"],
+            'cuisine': ["dining", "culinary", "service"],
+            'gourmet': ["dining", "culinary", "service"],
+            
+            // Wellness & Health
+            'wellness': ["spa", "fitness", "healthy"],
+            'health': ["spa", "fitness", "healthy"],
+            'fitness': ["spa", "fitness", "healthy"],
+            'exercise': ["spa", "fitness", "healthy"],
+            'gym': ["spa", "fitness", "healthy"],
+            
+            // Nature & Outdoors
+            'nature': ["nature", "adventure", "quiet"],
+            'outdoor': ["nature", "adventure", "quiet"],
+            'mountain': ["nature", "adventure", "quiet"],
+            'garden': ["nature", "adventure", "quiet"],
+            'park': ["nature", "adventure", "quiet"],
+            
+            // Romance
+            'romantic': ["romantic", "spa", "dining"],
+            'couple': ["romantic", "spa", "dining"],
+            'honeymoon': ["romantic", "spa", "dining"],
+            'anniversary': ["romantic", "spa", "dining"],
+            
+            // Budget & Deals
+            'cheap': ["budget", "flexible", "basic"],
+            'affordable': ["budget", "flexible", "basic"],
+            'budget': ["budget", "flexible", "basic"],
+            'deal': ["budget", "flexible", "basic"],
+            'bargain': ["budget", "flexible", "basic"],
+            
+            // Pet Friendly
+            'pet': ["pet", "friendly", "apartment"],
+            'dog': ["pet", "friendly", "apartment"],
+            'cat': ["pet", "friendly", "apartment"],
+            'animal': ["pet", "friendly", "apartment"],
+            
+            // Accessibility
+            'accessible': ["accessible", "service", "adapted"],
+            'wheelchair': ["accessible", "service", "adapted"],
+            'disability': ["accessible", "service", "adapted"],
+            'handicap': ["accessible", "service", "adapted"]
+        };
+
+        function createPill(text, isSelected) {
+            const pill = document.createElement("div");
+            pill.className = isSelected ? "pill selected" :     "pill";
+            pill.innerHTML = isSelected ? 
+                `${text}<span class="material-icons">close</span>` :
+                `<span class="material-icons">add</span>${text}`;
+            pill.onclick = () => toggleSelection(text);
+            return pill;
+        }
+
+        function showSuggestions() {
+            suggestionsSection.style.display = "block";
+            suggestionsDiv.innerHTML = "";
+            suggestions
+                .filter(suggestion => !selected.has(suggestion))
+                .forEach(suggestion => {
+                    suggestionsDiv.appendChild(createPill(suggestion, false));
+                });
+        }
+
+        function updateMatches() {
+            const query = searchInput.value.toLowerCase().trim();
+            suggestionsDiv.innerHTML = "";
+            matchesDiv.innerHTML = "";
+
+            if (query === "") {
+                showSuggestions();
+                matchesSection.style.display = "none";
+            } else {
+                suggestionsSection.style.display = "none";
+                const queryWords = query.split(" ");
+                const matchedConcepts = new Set();
+
+                queryWords.forEach(word => {
+                    if (word.length >= 2) {  // Only process words with 2+ characters
+                        // Check direct keyword mappings with partial matches
+                        Object.keys(keywordMapping).forEach(key => {
+                            if ((key.includes(word) || word.includes(key)) && word.length >= 2) {
+                                keywordMapping[key].forEach(concept => matchedConcepts.add(concept));
+                            }
+                        });
+                        
+                        // Check additional mappings with partial matches
+                        Object.keys(additionalMappings).forEach(key => {
+                            if ((key.includes(word) || word.includes(key)) && word.length >= 2) {
+                                additionalMappings[key].forEach(mappedWord => {
+                                    if (keywordMapping[mappedWord]) {
+                                        keywordMapping[mappedWord].forEach(concept => matchedConcepts.add(concept));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                if (matchedConcepts.size > 0) {
+                    matchesSection.style.display = "block";
+                    Array.from(matchedConcepts)
+                        .filter(concept => !selected.has(concept))
+                        .slice(0, 10)
+                        .forEach(concept => {
+                            matchesDiv.appendChild(createPill(concept, false));
+                        });
+                } else {
+                    matchesSection.style.display = "none";
+                }
+            }
+            updateResultsCount();
+        }
+
+        function toggleSelection(option) {
+            if (selected.has(option)) {
+                selected.delete(option);
+            } else {
+                selected.add(option);
+            }
+            updateSelected();
+            updateMatches();
+            // Save to localStorage whenever selections change
+            localStorage.setItem('selectedFilters', JSON.stringify(Array.from(selected)));
+            
+            // Return focus to search input
+            const searchInput = document.getElementById('search');
+            searchInput.focus();
+        }
+
+        function updateSelected() {
+            selectedDiv.innerHTML = "";
+            if (selected.size > 0) {
+                selectedSection.style.display = "block";
+                selected.forEach(opt => {
+                    selectedDiv.appendChild(createPill(opt, true));
+                });
+            } else {
+                selectedSection.style.display = "none";
+            }
+        }
+
+        function updateResultsCount() {
+            const baseCount = 387;
+            const reductionFactor = 0.15;
+            
+            const remainingCount = Math.floor(baseCount * Math.pow(reductionFactor, selected.size));
+            const finalCount = selected.size >= 4 ? 0 : Math.max(0, remainingCount);
+            
+            let noResultsBanner = document.getElementById('no-results-banner');
+            if (!noResultsBanner) {
+                noResultsBanner = document.createElement('div');
+                noResultsBanner.id = 'no-results-banner';
+                noResultsBanner.className = 'no-results-banner';
+                noResultsBanner.innerHTML = 'No hotels match all your filters. Try removing some filters to see more options.';
+                resultsButton.insertAdjacentElement('beforebegin', noResultsBanner);
+            }
+            
+            if (finalCount === 0) {
+                noResultsBanner.style.display = 'block';
+                resultsButton.textContent = 'Select preferences';
+                resultsButton.onclick = () => window.location.href = 'Preferences.html';
+            } else {
+                noResultsBanner.style.display = 'none';
+                resultsButton.textContent = `Show ${finalCount} results`;
+                resultsButton.onclick = () => {
+                    localStorage.setItem('resultCount', finalCount);
+                    window.location.href = 'Listings.html';
+                }
+            }
+        }
+
+        // Add to existing DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load previous selections from localStorage
+            const savedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+            savedFilters.forEach(filter => selected.add(filter));
+            
+            // Update UI to reflect loaded selections
+            updateSelected();
+            showSuggestions();
+            updateResultsCount();
+
+            // Auto-focus the search field
+            const searchInput = document.getElementById('search');
+            searchInput.focus();
+        });
+
+        // Add event listener for search input
+        searchInput.addEventListener("input", updateMatches);
+
+        // Add enter key handler
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                searchInput.blur(); // Remove focus when Enter is pressed
+            }
+        });
+    </script>
+</body>
+</html>

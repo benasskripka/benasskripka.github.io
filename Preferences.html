@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">    <style>
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #fff;
+        }
+
+        .container {
+            padding: 24px;
+        }
+
+        .header h2{
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-family: 'Newsreader', serif;
+            font-size: 28px;
+            color: #191E3B;
+            font-weight: 500;
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-button .material-icons {
+            font-size: 24px;
+            color: #1A1A1A;
+        }
+
+        #search {
+            width: 100%;
+            font-size: 28px;
+            font-family: 'Newsreader', serif;
+            color: #191E3B;
+            border: none;
+            border-radius: 4px;
+            margin-top: 8px;
+            outline: none;
+        }
+
+        .section {
+            margin: 24px 0;
+        }
+
+        .header p{
+            font-size: 14px;
+        }
+        
+        
+        .section-title {
+            margin-bottom: 12px;
+            color: #191E3B;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px;
+            background: white;
+            border: 2px dashed #191E3B;
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #1A1A1A;
+        }
+
+        .pill.selected {
+            background: #f5f5f5;
+            border: 2px solid #191E3B;
+        }
+
+        .pill .material-icons {
+            font-size: 18px;
+        }
+
+        .pill:not(.selected) .material-icons {
+            display: none;
+        }
+
+        .results-button {
+            width: calc(100% - 32px);
+            padding: 16px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 32px;
+            font-size: 16px;
+            cursor: pointer;
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+        }
+
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="saveAndGoBack()">
+        <span class="material-icons">close</span>
+    </button>
+    <div class="header">
+        <H2>Select preferences</h2>
+        <p>Tap on your selected must haves, to turn them into preferences. We will sort your results based on it.</p>
+    </div>
+
+    <div id="must-haves-section" class="section">
+        <div class="section-title">Must haves</div>
+        <div id="must-haves" class="selected"></div>
+    </div>
+
+    <div id="preferences-section" class="section">
+        <div class="section-title">Preferences</div>
+        <div id="preferences" class="selected"></div>
+    </div>
+
+    <button class="results-button" onclick="window.location.href='Listings.html'">Update preferences</button>
+
+    <script>
+        const mustHavesDiv = document.getElementById("must-haves");
+        const preferencesDiv = document.getElementById("preferences");
+        const selected = new Set();
+        const preferences = new Set();
+
+        function createPill(text, state) {
+            const pill = document.createElement("div");
+            pill.className = state === "dashed" ? "pill" : "pill selected";
+            pill.innerHTML = `${text}`;
+            pill.onclick = () => toggleDashed(text, pill);
+            return pill;
+        }
+
+        function updateResultsCount() {
+            const baseCount = 387;
+            const reductionFactor = 0.15;
+            
+            const remainingCount = Math.floor(baseCount * Math.pow(reductionFactor, selected.size));
+            const finalCount = selected.size >= 4 ? 0 : Math.max(0, remainingCount);
+            
+            const resultsButton = document.querySelector('.results-button');
+            
+            if (preferences.size === 0) {
+                resultsButton.style.display = 'none';
+            } else {
+                resultsButton.style.display = 'block';
+                if (finalCount === 0) {
+                    resultsButton.textContent = 'Select preferences';
+                    resultsButton.onclick = () => window.location.href = 'Pills.html';
+                } else {
+                    resultsButton.textContent = `Show ${finalCount} results`;
+                    resultsButton.onclick = () => {
+                        localStorage.setItem('resultCount', finalCount);
+                        window.location.href = 'Listings.html';
+                    }
+                }
+            }
+        }
+
+        function toggleDashed(text, pill) {
+            if (pill.className === "pill selected") {
+                // Move to preferences
+                pill.className = "pill";
+                selected.delete(text);
+                preferences.add(text);
+            } else {
+                // Move back to must-haves
+                pill.className = "pill selected";
+                preferences.delete(text);
+                selected.add(text);
+            }
+            updateSections();
+            updateResultsCount();
+        }
+
+        function updateSections() {
+            // Update Must haves section
+            mustHavesDiv.innerHTML = "";
+            selected.forEach(text => {
+                const pill = createPill(text, "solid");
+                mustHavesDiv.appendChild(pill);
+            });
+
+            // Update Preferences section
+            preferencesDiv.innerHTML = "";
+            preferences.forEach(text => {
+                const pill = createPill(text, "dashed");
+                preferencesDiv.appendChild(pill);
+            });
+
+            // Show/hide sections based on content
+            document.getElementById("must-haves-section").style.display = 
+                selected.size > 0 ? "block" : "none";
+            document.getElementById("preferences-section").style.display = 
+                preferences.size > 0 ? "block" : "none";
+        }
+
+        // Initialize with filters from localStorage
+        const selectedFilters = JSON.parse(localStorage.getItem('selectedFilters') || '[]');
+        selectedFilters.forEach(text => {
+            selected.add(text);
+        });
+        updateSections();
+
+        // Initialize with button hidden
+        document.querySelector('.results-button').style.display = 'none';
+
+        function saveAndGoBack() {
+            localStorage.setItem('selectedFilters', JSON.stringify(Array.from(selected)));
+            window.location.href = 'Pills.html';
+        }
+    </script>
+</body>
+</html> 
