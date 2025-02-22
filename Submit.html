@@ -533,9 +533,13 @@
             showSuggestions();
             updateResultsCount();
 
-            // Auto-focus the search field
-            const searchInput = document.getElementById('search');
-            searchInput.focus();
+            // Auto-focus with a slight delay for mobile
+            setTimeout(() => {
+                const searchInput = document.getElementById('search');
+                searchInput.focus();
+                // Optional: scroll to input on mobile
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         });
 
         // Add input event listener to search input
