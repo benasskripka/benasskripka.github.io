@@ -533,13 +533,14 @@
             showSuggestions();
             updateResultsCount();
 
-            // Auto-focus with a slight delay for mobile
+            // Force focus with a single aggressive attempt
             setTimeout(() => {
                 const searchInput = document.getElementById('search');
-                searchInput.focus();
-                // Optional: scroll to input on mobile
+                searchInput.click();  // Trigger click first
+                searchInput.focus({ preventScroll: false });  // Force focus with scroll
+                // Optional: ensure visibility on mobile
                 searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
+            }, 100);
         });
 
         // Add input event listener to search input
