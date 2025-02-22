@@ -459,25 +459,14 @@
 
             const searchInput = document.getElementById('search');
             
-            // Try immediate focus
-            searchInput.focus();
-            
-            // Also try on first user interaction
-            document.body.addEventListener('touchstart', function onFirstTouch() {
-                searchInput.focus();
-                document.body.removeEventListener('touchstart', onFirstTouch);
-            }, { once: true });
-
-            // And try after a slight delay with user activation
+            // Shorter delay for quicker response
             setTimeout(() => {
-                // Simulate user interaction
                 searchInput.click();
                 searchInput.focus();
-                
-                // Ensure the input is in view
                 searchInput.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'center'
+                    block: 'start',
+                    inline: 'nearest'
                 });
             }, 100);
         });
