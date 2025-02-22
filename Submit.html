@@ -533,13 +533,28 @@
             showSuggestions();
             updateResultsCount();
 
-            // Force focus with a single aggressive attempt
+            const searchInput = document.getElementById('search');
+            
+            // Try immediate focus
+            searchInput.focus();
+            
+            // Also try on first user interaction
+            document.body.addEventListener('touchstart', function onFirstTouch() {
+                searchInput.focus();
+                document.body.removeEventListener('touchstart', onFirstTouch);
+            }, { once: true });
+
+            // And try after a slight delay with user activation
             setTimeout(() => {
-                const searchInput = document.getElementById('search');
-                searchInput.click();  // Trigger click first
-                searchInput.focus({ preventScroll: false });  // Force focus with scroll
-                // Optional: ensure visibility on mobile
-                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Simulate user interaction
+                searchInput.click();
+                searchInput.focus();
+                
+                // Ensure the input is in view
+                searchInput.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
             }, 100);
         });
 
